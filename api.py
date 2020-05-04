@@ -18,7 +18,7 @@ app = FastAPI()
 async def discord_oauth_redir():
     state_key = token_urlsafe(20)
     response = RedirectResponse(
-        f"https://discordapp.com/api/v7/oauth2/authorize?client_id={config['client_id']}&state={state_key}&redirect_uri={config['redirect_url']}&response_type=code&scope=identify%20connections&prompt=none",
+        f"https://discord.com/api/v7/oauth2/authorize?client_id={config['client_id']}&state={state_key}&redirect_uri={config['redirect_url']}&response_type=code&scope=identify%20connections&prompt=none",
         status_code=307
     )
     # We won't need this cookie 5 minutes later
@@ -46,7 +46,7 @@ async def finish_link(error: str = None, code: str = None, state: str = None, re
         "grant_type": "authorization_code"
     }
 
-    async with session_pool.post("https://discordapp.com/api/v7/oauth2/token", data=body) as token_resp:
+    async with session_pool.post("https://discord.com/api/v7/oauth2/token", data=body) as token_resp:
         token_return = await token_resp.json()
         access_token = token_return["access_token"]
 
@@ -55,11 +55,11 @@ async def finish_link(error: str = None, code: str = None, state: str = None, re
         "Authorization": f"Bearer {access_token}"
     }
 
-    async with session_pool.get(f"https://discordapp.com/api/v6/users/@me", headers=headers) as resp:
+    async with session_pool.get(f"https://discord.com/api/v6/users/@me", headers=headers) as resp:
         user_info = await resp.json()
         user_id = int(user_info["id"])
 
-    async with session_pool.get("https://discordapp.com/api/v6/users/@me/connections", headers=headers) as resp:
+    async with session_pool.get("https://discord.com/api/v6/users/@me/connections", headers=headers) as resp:
         connections = await resp.json()
         found = False
         for connection in connections:
